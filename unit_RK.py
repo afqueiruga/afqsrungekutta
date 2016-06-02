@@ -3,10 +3,13 @@ Verify the RK routines on silly ODES
 """
 import numpy as np
 
-from dolfin import *
-from src.RKnew import exRK,imRK
+#from dolfin import *
+from RKbase import *
+import exRK,imRK
+
 import matplotlib
 from matplotlib import pylab as plt
+
 
 def problem1(NT,stepclass,scheme,plotit=False):
     """
@@ -15,17 +18,16 @@ def problem1(NT,stepclass,scheme,plotit=False):
     M_1 = None #np.array([[1.0]],dtype=np.double)
     x = np.array([0.1],dtype=np.double)
     u = np.array([0.0],dtype=np.double)
-    def sys_1(time,tang=False):
-        if tang:
-            return [np.array([-x[0]],np.double), np.array([[-1.0]],np.double),np.array([[0.0]],np.double)]
-        else:
-            return np.array([-x[0]],np.double)
-    def bcapp(K,R,time,hold):
-        pass
-    def update():
-        pass
 
-    odef = exRK.RK_field(2, [u,x],M_1,sys_1,bcapp,update)
+    class rkf_prob1(RK_field_numpy):
+        def sys(self,time,tang=False):
+            if tang:
+                return [np.array([-x[0]],np.double), np.array([[-1.0]],np.double),np.array([[0.0]],np.double)]
+            else:
+                return np.array([-x[0]],np.double)
+
+
+    odef = rkf_prob1(2,[u,x],M_1) #exRK.RK_field(2, [u,x],M_1,sys_1,bcapp,update)
 
     Tmax = 10.0
     # NT = 500
@@ -44,6 +46,8 @@ def problem1(NT,stepclass,scheme,plotit=False):
         plt.plot(times,us)
         # plt.show()
     return [x[0]]
+
+
 def problem2(NT,stepclass,scheme,plotit=False):
     """
     1st order decay
@@ -80,6 +84,8 @@ def problem2(NT,stepclass,scheme,plotit=False):
         plt.plot(times,us)
         # plt.show()
     return [x[0]]
+
+
 def problem3(NT,stepclass,scheme,plotit=False):
     """
     That DAE of mine
@@ -166,13 +172,13 @@ tests = {
     'RK3-1':[exRK.exRK,exRK.exRK_table['RK3-1'],range(100,3000,300)],
     'RK4':[exRK.exRK,exRK.exRK_table['RK4'],range(100,1000,100)+[10000]],
     
-    'BWEuler':[imRK.DIRK,imRK.LDIRK['BWEuler'],range(100,1000,100)],
-    'LSDIRK2':[imRK.DIRK,imRK.LDIRK['LSDIRK3'],range(100,1000,100)],
-    'LSDIRK3':[imRK.DIRK,imRK.LDIRK['LSDIRK3'],range(100,1000,100)+[10000]],
+    #'BWEuler':[imRK.DIRK,imRK.LDIRK['BWEuler'],range(100,1000,100)],
+    #'LSDIRK2':[imRK.DIRK,imRK.LDIRK['LSDIRK3'],range(100,1000,100)],
+    #'LSDIRK3':[imRK.DIRK,imRK.LDIRK['LSDIRK3'],range(100,1000,100)+[10000]],
 
-    'ImTrap':[imRK.DIRK,imRK.LDIRK['ImTrap'],range(100,1000,100)],
-    'DIRK2':[imRK.DIRK,imRK.LDIRK['DIRK2'],range(100,1000,100)],
-    'DIRK3':[imRK.DIRK,imRK.LDIRK['DIRK3'],range(100,1000,100)]
+    #'ImTrap':[imRK.DIRK,imRK.LDIRK['ImTrap'],range(100,1000,100)],
+    #'DIRK2':[imRK.DIRK,imRK.LDIRK['DIRK2'],range(100,1000,100)],
+    #'DIRK3':[imRK.DIRK,imRK.LDIRK['DIRK3'],range(100,1000,100)]
     }
 
 results = {}
@@ -184,9 +190,11 @@ for method,(cl,sc,NTS) in tests.iteritems():
         R.append([nt]+res)
     results[method]=np.array(R)
 
+
+#exit()
 from collections import defaultdict
 # colorgen =
-embed()
+#embed()
 Tmax = 1.0
 labels = [ 'y(0)','z(0.5)','T(0.5)','V(0.5)' ]
 def make_error_plots(sd, sdconv, labels):

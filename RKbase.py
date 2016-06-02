@@ -34,6 +34,8 @@ class RK_field():
         pass
     def linsolve(self,K,x,R):
         pass
+    def invertM(self, x):
+        pass
     """
     These are the functions that need to be overwritten by the RK instance
     """
@@ -44,7 +46,25 @@ class RK_field():
     def update(self):
         pass
 
-    
+class RK_field_numpy(RK_field):
+    """
+    A class that just does a simple array field. Mostly for testing.
+    """
+    def backend_setup(self):
+        if self.M != None:
+            self.Mbc = self.M.copy()
+            self.bcapp( self.Mbc)
+        else:
+            self.M = np.eye(self.u[0].size)
+            self.Mbc = np.eye(self.u[0].size)
+        
+    def linsolve(self,K,x,R):
+        import scipy.linalg
+        x[:] = scipy.linalg.solve(K,R)
+
+    def invertM(self,x,b):
+        self.linsolve(self.M,x,b)
+        
 class RK_field_dolfin(RK_field):
     """
     A class that solves using dolfin's system
@@ -64,7 +84,7 @@ class RK_field_dolfin(RK_field):
                 self.Mdiaginv.apply("insert")
         else:
             self.Mbc = None
-    def linsolve(K,x,R):
+    def linsolve(self,K,x,R):
         from dolfin import solve
         solve(K,x,R)
 
@@ -118,7 +138,7 @@ class RKbase():
                     break
                 
     def DPRINT(*args):
-        #return
+        return
         for a in args[1:]:
             print a,
         print ""

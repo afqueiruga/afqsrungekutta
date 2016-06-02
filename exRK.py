@@ -67,11 +67,8 @@ class exRK(RKbase):
         for i in xrange(len(RK_c)):
             tnow = time + h* RK_c[i]
             self.DPRINT( " Stage ",i," at ",RK_c[i]," with ai_=",RK_a[i,:] )
-            # from IPython import embed
-            # embed()
             # Step 1: Calculate values of explicit fields at this step
             for f in self.ex_fields:
-                # embed()
                 for s,v in zip(f.u,f.u0):
                     s[:] = v[:]
                 f.DU[0][:] = 0.0 #.zero()
@@ -80,18 +77,11 @@ class exRK(RKbase):
                     if f.order == 2:
                         f.u[1][:] += h*RK_a[i,j]* f.vs[j][:]
                 # f.bcapp(None,f.u[0],time+h,False)
-                #f.u[0] += f.DU[0] 
-                if f.M!=None:
-                    if type(f.M) is Matrix:
-                        solve(f.Mbc,f.u[0],f.DU[0],lin_method)
-                    else:
-                        f.u[0] += f.DU[0]*f.Mdiaginv
-                    # f.bcapp(None,f.u[0],time+h*RK_c[i],False)
-                    f.u[0] += f.u0[0] 
-                else:
-                    #f.bcapp(None,f.DU[0],time+h*RK_c[i],False)
-                    f.u[0] += f.DU[0] 
+                #f.u[0] += f.DU[0]
+                f.linsolve(f.Mbc,f.u[0],f.DU[0])
+                f.u[0] += f.u0[0]
                 f.update()
+                
             # Step 2: Solve Implicit fields
             for f in self.im_fields:
                 self.DPRINT( " Solving Implicit field... ")
@@ -105,13 +95,9 @@ class exRK(RKbase):
                     f.bcapp(K,F, time+h*RK_c[i],itcnt!=0)
                     self.DPRINT( "   Solving Matrix... ")
                     # embed()
-                    if type(K) is Matrix:
-                        solve(K,f.DU[0],F,lin_method)
-                        eps = np.linalg.norm(f.DU[0].array(), ord=np.Inf)
-                    else:
-                        f.DU[0][:] = 1.0/K[0,0]*F
-                        eps = np.abs(f.DU[0])
-                    
+                    f.linsolve(K,f.DU[0],F)
+                    eps = np.linalg.norm(f.DU[0].array(), ord=np.Inf)
+                
                     self.DPRINT( "  ",itcnt," Norm:", eps)
                     if np.isnan(eps):
                         print "Hit a Nan! Quitting"
@@ -138,18 +124,9 @@ class exRK(RKbase):
                 f.DU[0][:] += h*RK_b[j]*f.ks[j][:] # Need to solve matrix
                 if f.order == 2:
                     f.u[1][:] += h*RK_b[j]* f.vs[j][:]
-            if f.M!=None:
-                if type(f.M) is Matrix:
-                    f.u[0].zero()
-                    solve(f.Mbc,f.u[0],f.DU[0],lin_method)
-                else:
-                    f.u[0].zero()
-                    f.u[0] += f.DU[0]*f.Mdiaginv
-                # f.bcapp(None,f.u[0],time+h,False)
-                f.u[0] += f.u0[0] 
-            else:
-                # f.bcapp(None,f.DU[0],time+h,False)
-                f.u[0] += f.DU[0] 
+            #f.u[0].zero()
+            f.linsolve(f.Mbc,f.u[0],f.DU[0])
+            f.u[0] += f.u0[0] 
             f.update()
 
         # Solve the implicit equation here
