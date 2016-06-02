@@ -101,7 +101,7 @@ class RK_field_scipy(RK_field):
         else:
             self.Mbc = self.M.copy()
             self.bcapp(self.Mbc,None,0.0,False)
-    def linsolve(K,x,R):
+    def linsolve(self, K,x,R):
         import scipy.sparse.linalg
         x[:] = scipy.sparse.linalg.spsolve(K,R)
     
