@@ -52,20 +52,17 @@ def problem2(NT,stepclass,scheme,plotit=False):
     """
     1st order decay
     """
-    M_1 = None #np.array([[1.0]],dtype=np.double)
+    M_1 = np.array([[1.0]],dtype=np.double)
     x = np.array([0.1],dtype=np.double)
     # u = np.array([0.0],dtype=np.double)
-    def sys_1(time,tang=False):
-        if tang:
-            return [np.array([-x[0]],np.double), np.array([[-1.0]],np.double)]
-        else:
-            return np.array([-x[0]],np.double)
-    def bcapp(K,R,time,hold):
-        pass
-    def update():
-        pass
+    class rkf_prob2(RK_field_numpy):
+        def sys(self,time,tang=False):
+            if tang:
+                return [np.array([-x[0]],np.double), np.array([[-1.0]],np.double)]
+            else:
+                return np.array([-x[0]],np.double)
 
-    odef = exRK.RK_field(1, [x],M_1,sys_1,bcapp,update)
+    odef = rkf_prob2(1, [x],M_1)
 
     Tmax = 10.0
     # NT = 500
@@ -172,24 +169,27 @@ tests = {
     'RK3-1':[exRK.exRK,exRK.exRK_table['RK3-1'],range(100,3000,300)],
     'RK4':[exRK.exRK,exRK.exRK_table['RK4'],range(100,1000,100)+[10000]],
     
-    #'BWEuler':[imRK.DIRK,imRK.LDIRK['BWEuler'],range(100,1000,100)],
-    #'LSDIRK2':[imRK.DIRK,imRK.LDIRK['LSDIRK3'],range(100,1000,100)],
-    #'LSDIRK3':[imRK.DIRK,imRK.LDIRK['LSDIRK3'],range(100,1000,100)+[10000]],
+    'BWEuler':[imRK.DIRK,imRK.LDIRK['BWEuler'],range(100,1000,100)],
+    'LSDIRK2':[imRK.DIRK,imRK.LDIRK['LSDIRK3'],range(100,1000,100)],
+    'LSDIRK3':[imRK.DIRK,imRK.LDIRK['LSDIRK3'],range(100,1000,100)+[10000]],
 
-    #'ImTrap':[imRK.DIRK,imRK.LDIRK['ImTrap'],range(100,1000,100)],
-    #'DIRK2':[imRK.DIRK,imRK.LDIRK['DIRK2'],range(100,1000,100)],
-    #'DIRK3':[imRK.DIRK,imRK.LDIRK['DIRK3'],range(100,1000,100)]
+    'ImTrap':[imRK.DIRK,imRK.LDIRK['ImTrap'],range(100,1000,100)],
+    'DIRK2':[imRK.DIRK,imRK.LDIRK['DIRK2'],range(100,1000,100)],
+    'DIRK3':[imRK.DIRK,imRK.LDIRK['DIRK3'],range(100,1000,100)]
     }
-
+problems = {
+    'oscillator': (problem1,0.1*np.cos(10.0)),
+    'decay': (problem2,np.exp(-10.0)*0.1)
+}
+PROBLEM,BEST = problems['decay']
 results = {}
 # embed()
 for method,(cl,sc,NTS) in tests.iteritems():
     R = []
     for nt in NTS:
-        res=problem1(nt,cl,sc,False)
+        res=PROBLEM(nt,cl,sc,False)
         R.append([nt]+res)
     results[method]=np.array(R)
-
 
 #exit()
 from collections import defaultdict
@@ -210,9 +210,9 @@ def make_error_plots(sd, sdconv, labels):
         plt.figure()
         plt.xlabel("Logarithm of time step size log(h)")
         plt.ylabel("Logarithm of error in "+label)
-        best = 0.1*np.cos(10.0) #sd['RK4'][-1,i+1] #np.exp(-10.0)*0.1 #
+        #best = 0.1*np.cos(10.0) #sd['RK4'][-1,i+1] #np.exp(-10.0)*0.1 #
         for k in sd.iterkeys():
-            plt.loglog( hs[k], [np.abs(y-best) for y in sd[k][:,i+1]],'+-',label=k)
+            plt.loglog( hs[k], [np.abs(y-BEST) for y in sd[k][:,i+1]],'+-',label=k)
             # plt.loglog( hsconv[o], [np.abs(y-best) for y in datconv[:,i+1]],'+',color=c)
         plt.legend()
     plt.show()

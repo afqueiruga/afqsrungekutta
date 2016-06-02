@@ -53,7 +53,7 @@ class RK_field_numpy(RK_field):
     def backend_setup(self):
         if self.M != None:
             self.Mbc = self.M.copy()
-            self.bcapp( self.Mbc)
+            self.bcapp( self.Mbc,None,0.0)
         else:
             self.M = np.eye(self.u[0].size)
             self.Mbc = np.eye(self.u[0].size)
