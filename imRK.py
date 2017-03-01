@@ -1,5 +1,4 @@
 import numpy as np
-from dolfin import *
 
 from RKbase import *
 
@@ -10,6 +9,7 @@ lin_method = "superlu"
 """
 What paper did I get this one from?
 """
+sqrt = np.sqrt
 
 alpha_2 = 1.0-0.5*sqrt(2.0)
 
@@ -154,16 +154,16 @@ class DIRK(RKbase):
 
                         # Apply the Newton steps
                         if f.order==0:
-                            f.u[0][:] = f.u[0][:] - f.DU[0][:]
+                            f.u[0][:] = f.u[0][:] - self.w*f.DU[0][:]
                         elif f.order==1:
-                            f.u[0][:] = f.u[0][:] + f.DU[0][:]
+                            f.u[0][:] = f.u[0][:] + self.w*f.DU[0][:]
                         else: # 2
-                            f.u[0][:] = f.u[0][:] + f.DU[0][:]
+                            f.u[0][:] = f.u[0][:] + self.w*f.DU[0][:]
                             f.u[1][:] = f.uhat[1][:] + h*aii*f.u[0][:]
                         f.update()
                         itcnt += 1
                     # end newton iteration
-                    if itcnt > 1:
+                    if (itcnt > 1) or (itcnt==1 and eps>tol):
                         alldone = False
                 # end field loop
                 # Make sure it does at least TWO loops

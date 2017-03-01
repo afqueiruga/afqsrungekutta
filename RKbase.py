@@ -104,13 +104,13 @@ class RK_field_scipy(RK_field):
     def linsolve(self, K,x,R):
         import scipy.sparse.linalg
         x[:] = scipy.sparse.linalg.spsolve(K,R)
-    
+
     
 class RKbase():
     """
     Base class for a Runge-Kutta integrator
     """
-    def __init__(self,h, tableau, fields, tol=1.0e-12):
+    def __init__(self,h, tableau, fields, tol=1.0e-12, w=1.0):
         self.h = h
         
         self.RK_a = tableau['a']
@@ -118,7 +118,8 @@ class RKbase():
         self.RK_c = tableau['c']
 
         self.tol=tol
-
+        self.w = w
+        
         self.im_fields = []
         self.ex_fields = []
         for f in fields:
@@ -138,7 +139,7 @@ class RKbase():
                     break
                 
     def DPRINT(*args):
-        return
+        #return
         for a in args[1:]:
             print a,
         print ""

@@ -87,22 +87,22 @@ class exRK(RKbase):
                 self.DPRINT( " Solving Implicit field... ")
                 eps = 1.0
                 tol = self.tol
-                maxiter = 10
+                maxiter = f.maxnewt
                 itcnt = 0
                 while eps>tol and itcnt < maxiter:
                     self.DPRINT("  Solving...")
-                    F,K = f.sys(tnow)
+                    F,K = f.sys(tnow,True)
                     f.bcapp(K,F, time+h*RK_c[i],itcnt!=0)
                     self.DPRINT( "   Solving Matrix... ")
                     # embed()
                     f.linsolve(K,f.DU[0],F)
-                    eps = np.linalg.norm(f.DU[0].array(), ord=np.Inf)
+                    eps = np.linalg.norm(f.DU[0], ord=np.Inf)
                 
                     self.DPRINT( "  ",itcnt," Norm:", eps)
                     if np.isnan(eps):
                         print "Hit a Nan! Quitting"
                         raise
-                    f.u[0].axpy(-1.0, f.DU[0])
+                    f.u[0][:] = f.u[0][:] - f.DU[0][:]
                     f.update()
                     itcnt += 1
             
@@ -139,20 +139,16 @@ class exRK(RKbase):
             itcnt = 0
             while eps>tol and itcnt < maxiter:
                 self.DPRINT("  Solving...")
-                F,K = f.sys(tnow)
+                F,K = f.sys(tnow,True)
                 f.bcapp(K,F,time+h*RK_c[i],itcnt!=0)
                 self.DPRINT( "   Solving Matrix... ")
-                if type(K) is Matrix:
-                    solve(K,f.DU[0],F,lin_method)
-                    eps = np.linalg.norm(f.DU[0].array(), ord=np.Inf)
-                else:
-                    f.DU[0][:] = 1.0/K[0,0]*F
-                    eps = np.abs(f.DU[0])
+                f.linsolve(K,f.DU[0],F)
+                eps = np.linalg.norm(f.DU[0], ord=np.Inf)
                 self.DPRINT( "  ",itcnt," Norm:", eps)
                 if np.isnan(eps):
                     print "Hit a Nan! Quitting"
                     raise
-                f.u[0].axpy( -1.0, f.DU[0] )
+                f.u[0][:] = f.u[0][:] - f.DU[0][:]
                 f.update()
                 itcnt += 1
         
