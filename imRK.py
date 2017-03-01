@@ -192,11 +192,7 @@ class DIRK(RKbase):
                     f.u[1][:] += h*RK_b[j]*f.vs[j][:]
             if f.M!=None:
                 f.u[0][:]=0.0
-                if type(f.Mbc) is Matrix or type(f.Mbc) is GenericMatrix:
-                    f.bcapp(None,f.DU[0],time+h,False)
-                    solve(f.Mbc,f.u[0],f.DU[0],lin_method)
-                else:
-                    f.u[0][:] = 1.0/f.Mbc[0,0] * f.DU[0][:]
+                f.linsolve(f.Mbc,f.u[0],f.DU[0])
                 f.u[0][:] += f.u0[0][:]
             else:
                 f.bcapp(None,f.DU[0],time+h,False)
@@ -215,13 +211,8 @@ class DIRK(RKbase):
                 self.DPRINT("  Solving...")
                 F,K = f.sys(tnow)
                 f.bcapp(K,F,time+h*RK_c[i],itcnt!=0)
-                self.DPRINT( "   Solving Matrix... ")
-                if type(K) is Matrix:
-                    solve(K,f.DU[0],F,lin_method)
-                    eps = np.linalg.norm(f.DU[0].array(), ord=np.Inf)
-                else:
-                    f.DU[0][:] = 1.0/K[0,0]*F
-                    eps = np.abs(f.DU[0])
+                f.linsolve(K,f.DU[0],F)
+                eps = np.linalg.norm(f.DU[0], ord=np.Inf)
                 self.DPRINT( "  ",itcnt," Norm:", eps)
                 if np.isnan(eps):
                     print "Hit a Nan! Quitting"
