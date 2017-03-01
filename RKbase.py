@@ -70,6 +70,7 @@ class RK_field_dolfin(RK_field):
     A class that solves using dolfin's system
     """
     def backend_setup(self):
+        from dolfin import Matrix
         if self.M != None:
             if type(self.M) is Matrix:
                 self.Mbc = self.M.copy()
