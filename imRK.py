@@ -138,7 +138,9 @@ class DIRK(RKbase):
                         # Solve the Matrix
                         # embed()
                         f.linsolve(K,f.DU[0],R)
-                        eps = np.linalg.norm(f.DU[0], ord=np.Inf)
+                        # eps = np.linalg.norm(f.DU[0], ord=np.Inf)
+                        # eps =  np.abs( np.dot( f.DU[0], R ) )
+                        eps = np.linalg.norm(f.DU[0]) / np.linalg.norm( f.u[0] )
                         #if type(K) is GenericMatrix or type(K) is Matrix:
                         #    solve(K,f.DU[0],R,lin_method)
                         #    eps = np.linalg.norm(f.DU[0].array(), ord=np.Inf)
@@ -212,7 +214,9 @@ class DIRK(RKbase):
                 F,K = f.sys(tnow)
                 f.bcapp(K,F,time+h*RK_c[i],itcnt!=0)
                 f.linsolve(K,f.DU[0],F)
-                eps = np.linalg.norm(f.DU[0], ord=np.Inf)
+                # eps = np.linalg.norm(f.DU[0], ord=np.Inf)
+                # eps =  np.abs( np.dot( f.DU[0], R ) )
+                eps = np.linalg.norm(f.DU[0]) / np.linalg.norm( f.u[0] )
                 self.DPRINT( "  ",itcnt," Norm:", eps)
                 if np.isnan(eps):
                     print "Hit a Nan! Quitting"

@@ -96,8 +96,8 @@ class exRK(RKbase):
                     self.DPRINT( "   Solving Matrix... ")
                     # embed()
                     f.linsolve(K,f.DU[0],F)
-                    eps = np.linalg.norm(f.DU[0], ord=np.Inf)
-                
+                    # eps = np.linalg.norm(f.DU[0], ord=np.Inf)
+                    eps = np.linalg.norm(f.DU[0]) / np.linalg.norm( f.u[0] )
                     self.DPRINT( "  ",itcnt," Norm:", eps)
                     if np.isnan(eps):
                         print "Hit a Nan! Quitting"
@@ -143,7 +143,8 @@ class exRK(RKbase):
                 f.bcapp(K,F,time+h*RK_c[i],itcnt!=0)
                 self.DPRINT( "   Solving Matrix... ")
                 f.linsolve(K,f.DU[0],F)
-                eps = np.linalg.norm(f.DU[0], ord=np.Inf)
+                # eps = np.linalg.norm(f.DU[0], ord=np.Inf)
+                eps = np.linalg.norm(f.DU[0]) / np.linalg.norm( f.u[0] )
                 self.DPRINT( "  ",itcnt," Norm:", eps)
                 if np.isnan(eps):
                     print "Hit a Nan! Quitting"
