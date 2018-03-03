@@ -1,6 +1,15 @@
 import numpy as np
 
 
+
+def error_metric(Du, u=None):
+    if u is not None:
+        enorm = np.max([ np.linalg.norm(u), 1.0e-5])
+    else:
+        enorm = 1.0
+    return np.linalg.norm(Du) / enorm
+
+
 class RK_field():
     """
     order:

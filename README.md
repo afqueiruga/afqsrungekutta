@@ -18,6 +18,13 @@ which presents the algorithms in detail. I've used this library for
 everything from particle methods, finite element methods,
 contact-driven problems, etc. There's room for improvement, but it works.
 
+## Example
+
+Here's an example using FEniCS:
+```python
+TODO write this example
+```
+
 ## License
 
 Copyright (C) Alejandro Francisco Queiruga, 2014-2018

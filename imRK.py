@@ -132,22 +132,10 @@ class DIRK(RKbase):
                             raise
                         # Apply BCs to matrix
                         f.bcapp(K,R, time+h*RK_c[i],itcnt!=0)
-                        #from IPython import embed
-                        #embed()
                         self.DPRINT( "   Solving Matrix... ")
                         # Solve the Matrix
-                        # embed()
                         f.linsolve(K,f.DU[0],R)
-                        # eps = np.linalg.norm(f.DU[0], ord=np.Inf)
-                        # eps =  np.abs( np.dot( f.DU[0], R ) )
-                        eps = np.linalg.norm(f.DU[0]) / np.linalg.norm( f.u[0] )
-                        #if type(K) is GenericMatrix or type(K) is Matrix:
-                        #    solve(K,f.DU[0],R,lin_method)
-                        #    eps = np.linalg.norm(f.DU[0].array(), ord=np.Inf)
-                        #else:
-                        #    f.DU[0][:] = 1.0/K[0,0]*R
-                        #    eps = np.abs(f.DU[0])
-                        # embed()
+                        eps = error_metric(f.DU[0], f.u[0])
 
                         self.DPRINT( "  ",itcnt," Norm:", eps)
                         if np.isnan(eps):
@@ -214,9 +202,8 @@ class DIRK(RKbase):
                 F,K = f.sys(tnow)
                 f.bcapp(K,F,time+h*RK_c[i],itcnt!=0)
                 f.linsolve(K,f.DU[0],F)
-                # eps = np.linalg.norm(f.DU[0], ord=np.Inf)
-                # eps =  np.abs( np.dot( f.DU[0], R ) )
-                eps = np.linalg.norm(f.DU[0]) / np.linalg.norm( f.u[0] )
+
+                eps = error_metric(f.DU[0], f.u[0] )
                 self.DPRINT( "  ",itcnt," Norm:", eps)
                 if np.isnan(eps):
                     print "Hit a Nan! Quitting"
