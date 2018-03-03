@@ -133,7 +133,7 @@ class exRK(RKbase):
             self.DPRINT( " Solving Implicit field... ")
             eps = 1.0
             tol = self.tol
-            maxiter = 10
+            maxiter = f.maxnewt
             itcnt = 0
             while eps>tol and itcnt < maxiter:
                 self.DPRINT("  Solving...")

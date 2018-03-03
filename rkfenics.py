@@ -11,7 +11,6 @@ class RK_field_fenics(RKbase.RK_field_dolfin):
         self.f_Ks = Kforms
         self.bcs = bcs
         M = assemble(Mform)
-        print M
         RKbase.RK_field_dolfin.__init__(self, order, [f.vector() for f in fields], M, **kwargs)
     def sys(self,time,tang=False):
         R = assemble(self.f_R)
@@ -28,6 +27,3 @@ class RK_field_fenics(RKbase.RK_field_dolfin):
                     bc.apply(K)
                 if R is not None:
                     bc.apply(R)
-    #def linsolve(self,K,x,R):
-    #    from dolfin import solve
-    #    solve(K,x,R, "gmres","ilu")
