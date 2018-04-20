@@ -73,30 +73,7 @@ class RK_field_numpy(RK_field):
 
     def invertM(self,x,b):
         self.linsolve(self.M,x,b)
-        
-class RK_field_dolfin(RK_field):
-    """
-    A class that solves using dolfin's system
-    """
-    def backend_setup(self):
-        from dolfin import Matrix
-        if self.M != None:
-            if type(self.M) is Matrix:
-                self.Mbc = self.M.copy()
-                self.bcapp(self.Mbc,None,0.0,False)
-            else:
-                self.Mdiaginv = self.M.copy()
-                mloc = self.Mdiaginv.get_local()
-                mloc[:] = 1.0/mloc[:]
-                self.Mdiaginv.set_local(mloc)
-                # for i in xrange(*self.Mdiaginv.local_range()):
-                # self.Mdiaginv.setitem(i, 1.0/self.M[i][0] )
-                self.Mdiaginv.apply("insert")
-        else:
-            self.Mbc = None
-    def linsolve(self,K,x,R):
-        from dolfin import solve
-        solve(K,x,R)
+    
 
         
 class RK_field_scipy(RK_field):
