@@ -10,7 +10,7 @@ import numpy as np
 
 #from dolfin import *
 from .RKbase import *
-import .exRK,.imRK
+from . import exRK,imRK
 
 import matplotlib
 from matplotlib import pylab as plt

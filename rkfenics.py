@@ -1,4 +1,4 @@
-import .RKbase
+from . import RKbase
 from dolfin import assemble, Matrix, solve
 
 
