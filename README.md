@@ -33,3 +33,10 @@ afqsrungekutta is released under version 3 of the GNU Lesser General Public Lice
 
 Please cite this repository or the above paper if you use this
 library.
+
+## Acknowledgments
+
+This work was developed during my dissertation work at UC Berkeley which was
+funded by the Army Research Laboratory through the Army High Performance
+Computing Research Center. Continuing development occurs at Lawrence Berkeley
+National Lab.
