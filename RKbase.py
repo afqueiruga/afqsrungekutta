@@ -1,3 +1,4 @@
+from __future__ import print_function
 import numpy as np
 
 
@@ -127,9 +128,10 @@ class RKbase():
                 
     def DPRINT(*args):
         #return
-        for a in args[1:]:
-            print a,
-        print ""
+        #for a in args[1:]:
+        #    print(a,)
+        #print("")
+        print(args[1:])
 
     # Implement me!
     def march(self,time=0.0):

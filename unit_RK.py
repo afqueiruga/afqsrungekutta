@@ -1,11 +1,16 @@
+from __future__ import print_function
+
 """
-Verify the RK routines on silly ODES
+Verify the RK routines on silly ODES.
+
+My papers are the real verifications, but that amount of problem-specific code 
+is beyond the scope of the libary.
 """
 import numpy as np
 
 #from dolfin import *
-from RKbase import *
-import exRK,imRK
+from .RKbase import *
+import .exRK,.imRK
 
 import matplotlib
 from matplotlib import pylab as plt

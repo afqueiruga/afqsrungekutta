@@ -1,7 +1,8 @@
+from __future__ import print_function
 import numpy as np
 #from dolfin import *
 
-from RKbase import *
+from .RKbase import *
 
 from IPython import embed
 lin_method = "cg"
@@ -98,7 +99,7 @@ class exRK(RKbase):
                     eps = error_metric( f.DU[0], f.u[0] )
                     self.DPRINT( "  ",itcnt," Norm:", eps)
                     if np.isnan(eps):
-                        print "Hit a Nan! Quitting"
+                        print("Hit a Nan! Quitting")
                         raise
                     f.u[0][:] = f.u[0][:] - f.DU[0][:]
                     f.update()
@@ -146,7 +147,7 @@ class exRK(RKbase):
                 
                 self.DPRINT( "  ",itcnt," Norm:", eps)
                 if np.isnan(eps):
-                    print "Hit a Nan! Quitting"
+                    print("Hit a Nan! Quitting")
                     raise
                 f.u[0][:] = f.u[0][:] - f.DU[0][:]
                 f.update()
