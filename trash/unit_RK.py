@@ -3,14 +3,14 @@ from __future__ import print_function
 """
 Verify the RK routines on silly ODES.
 
-My papers are the real verifications, but that amount of problem-specific code 
+My papers are the real verifications, but that amount of problem-specific code
 is beyond the scope of the libary.
 """
 import numpy as np
 
 #from dolfin import *
-from .RKbase import *
-from . import exRK,imRK
+from afqsrungekutta import RKbase
+from afqsrungekutta import exRK,imRK
 
 import matplotlib
 from matplotlib import pylab as plt
@@ -94,12 +94,12 @@ def problem3(NT,stepclass,scheme,plotit=False):
     """
     # Define Variables
     nd = lambda x : np.array([x],dtype=np.double)
-    
+
     y = nd(1.0)
     v = nd(0)
     T = nd(1.0)
     I = nd(0)
-    
+
     # Define Parameters
     K = 1.0
     K_alpha = -0.1
@@ -110,13 +110,13 @@ def problem3(NT,stepclass,scheme,plotit=False):
     h_conv = 1.0
     h_conv_alpha = 1.0
     Tinf = 0.0
-    
+
     # The same trivials for each
     def bcapp(K,R,time,hold):
         pass
     def update():
         pass
-    
+
     # Build Fields
     def sys_mech(time,tang=False):
         if tang:
@@ -136,7 +136,7 @@ def problem3(NT,stepclass,scheme,plotit=False):
     def sys_em(time,tang=False):
         return nd( -Vapp + (R+R_alpha*T[0])*I[0] + v[0]*B), nd([R])
     field_em = exRK.RK_field(0, [I],None,sys_em,bcapp,update)
-    
+
     # Create the timestepper and march
     Tmax = 10.0
     h = Tmax / NT
@@ -173,7 +173,7 @@ tests = {
     'RK2-mid':[exRK.exRK,exRK.exRK_table['RK2-mid'],range(100,2000,200)],
     'RK3-1':[exRK.exRK,exRK.exRK_table['RK3-1'],range(100,3000,300)],
     'RK4':[exRK.exRK,exRK.exRK_table['RK4'],range(100,1000,100)+[10000]],
-    
+
     'BWEuler':[imRK.DIRK,imRK.LDIRK['BWEuler'],range(100,1000,100)],
     'LSDIRK2':[imRK.DIRK,imRK.LDIRK['LSDIRK3'],range(100,1000,100)],
     'LSDIRK3':[imRK.DIRK,imRK.LDIRK['LSDIRK3'],range(100,1000,100)+[10000]],
