@@ -29,11 +29,11 @@ for scheme,order in [('LSDIRK2',2),('BWEuler',1)]:
             xs.append(x[0])
             vs.append(v[0])
             ts.append(t*h)
-        return {'x':np.array(xs),
-                'v':np.array(vs),
+        return {'x':np.array([xs]).T,
+                'v':np.array([vs]).T,
                 'points':np.array([ts]).T}
     ct = detest.ConvergenceTest(detest.oracles.odes.Oscillator,
-        oscillator,order, h_path=np.linspace(0.1,0.01,10))
+        oscillator,order, h_path=np.linspace(0.05,0.001,10))
     oscillator_tests.append(ct)
 
 
