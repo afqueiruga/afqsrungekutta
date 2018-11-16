@@ -7,6 +7,7 @@ import afqsrungekutta as ark
 
 #
 schemes_to_check = [
+    ('FWEuler',1),
     ('RK4',4),
     ('LSDIRK3',3),
     ('BWEuler',1)
@@ -24,7 +25,7 @@ def make_script(scheme):
                 if tang:
                     return [np.array([-k*x[0]],np.double), np.array([[-k]],np.double),np.array([[0.0]],np.double)]
                 else:
-                    return np.array([-x[0]],np.double)
+                    return np.array([-k*x[0]],np.double)
         odef = rkf_prob1(2,[v,x],M)
         NT = int(T_max / h)
         print("Solving with ",scheme)
@@ -34,7 +35,7 @@ def make_script(scheme):
             RKER.march()
             xs.append(x[0])
             vs.append(v[0])
-            ts.append(t*h)
+            ts.append((t+1)*h)
         return {'x':np.array([xs]).T,
                 'v':np.array([vs]).T,
                 'points':np.array([ts]).T}
