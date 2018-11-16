@@ -23,7 +23,7 @@ class RK_field():
         self.u = u
         self.M = M
         self.maxnewt = maxnewt
-        
+
         self.u0 = [ s.copy() for s in self.u ]
         # if order == 0:
         self.DU = [ s.copy() for s in self.u ]
@@ -67,16 +67,16 @@ class RK_field_numpy(RK_field):
         else:
             self.M = np.eye(self.u[0].size)
             self.Mbc = np.eye(self.u[0].size)
-        
+
     def linsolve(self,K,x,R):
         import scipy.linalg
         x[:] = scipy.linalg.solve(K,R)
 
     def invertM(self,x,b):
         self.linsolve(self.M,x,b)
-    
 
-        
+
+
 class RK_field_scipy(RK_field):
     """
     A class that does all the solving using scipy
@@ -93,21 +93,21 @@ class RK_field_scipy(RK_field):
         import scipy.sparse.linalg
         x[:] = scipy.sparse.linalg.spsolve(K,R)
 
-    
+
 class RKbase():
     """
     Base class for a Runge-Kutta integrator
     """
     def __init__(self,h, tableau, fields, tol=1.0e-12, w=1.0):
         self.h = h
-        
+
         self.RK_a = tableau['a']
         self.RK_b = tableau['b']
         self.RK_c = tableau['c']
 
         self.tol=tol
         self.w = w
-        
+
         self.im_fields = []
         self.ex_fields = []
         for f in fields:
@@ -115,7 +115,7 @@ class RKbase():
                 self.im_fields.append(f)
             else:
                 self.ex_fields.append(f)
-                
+
         # A tag to mark if the final b step is not needed if asj=bj
         self.LSTABLE=False
         if self.RK_c[-1]==1.0:
@@ -125,13 +125,13 @@ class RKbase():
                 if self.RK_b[j] != self.RK_a[s-1,j]:
                     self.LSTABLE = False
                     break
-                
+
     def DPRINT(*args):
         #return
         #for a in args[1:]:
         #    print(a,)
         #print("")
-        print(args[1:])
+        print(*args[1:])
 
     # Implement me!
     def march(self,time=0.0):
