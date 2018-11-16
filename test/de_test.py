@@ -11,19 +11,22 @@ for scheme,order in [('LSDIRK2',2),('BWEuler',1)]:
     def oscillator(params, h):
         x = np.array([0.1],dtype=np.double)
         u = np.array([0.0],dtype=np.double)
-        class rkf_prob1(RK_field_numpy):
+        M_1 = np.array([1.0],dtype=np.double)
+        T_max = params['T_max']
+        class rkf_prob1(ark.RK_field_numpy):
             def sys(self,time,tang=False):
                 if tang:
                     return [np.array([-x[0]],np.double), np.array([[-1.0]],np.double),np.array([[0.0]],np.double)]
                 else:
                     return np.array([-x[0]],np.double)
         odef = rkf_prob1(2,[u,x],M_1)
-        Tmax = 10.0
-        NT = T_max / h
+        NT = int(T_max / h)
         RKER = ark.Integrator(h, scheme, [odef])
         for t in xrange(NT):
             RKER.march()
-        return {'x':x[0],'v':u[0]}
+        return {'x':np.array([x[0]]),
+                'v':np.array([u[0]]),
+                'points':np.array([[T_max]])}
     ct = detest.ConvergenceTest(detest.oracles.odes.Oscillator,
         oscillator,order)
     oscillator_tests.append(ct)

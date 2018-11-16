@@ -4,7 +4,6 @@ import numpy as np
 
 from .RKbase import *
 
-from IPython import embed
 lin_method = "cg"
 
 """
@@ -56,13 +55,13 @@ class exRK(RKbase):
         RK_a = self.RK_a
         RK_b = self.RK_b
         RK_c = self.RK_c
-        
+
         for f in self.ex_fields:
             f.save_u0()
             f.ks = []
             if f.order == 2:
                 f.vs = []
-        
+
         for i in xrange(len(RK_c)):
             tnow = time + h* RK_c[i]
             self.DPRINT( " Stage ",i," at ",RK_c[i]," with ai_=",RK_a[i,:] )
@@ -80,7 +79,7 @@ class exRK(RKbase):
                 f.linsolve(f.Mbc,f.u[0],f.DU[0])
                 f.u[0] += f.u0[0]
                 f.update()
-                
+
             # Step 2: Solve Implicit fields
             for f in self.im_fields:
                 self.DPRINT( " Solving Implicit field... ")
@@ -104,7 +103,7 @@ class exRK(RKbase):
                     f.u[0][:] = f.u[0][:] - f.DU[0][:]
                     f.update()
                     itcnt += 1
-            
+
             # Step 3: Compute k for each field
             for f in self.ex_fields:
                 F = f.sys(tnow)
@@ -113,7 +112,7 @@ class exRK(RKbase):
                 if f.order == 2:
                     f.vs.append(f.u[0].copy())
         # end stage loop
-        
+
         # Do the final Mv=sum bk
         for f in self.ex_fields:
             for s,v in zip(f.u,f.u0):
@@ -125,7 +124,7 @@ class exRK(RKbase):
                     f.u[1][:] += h*RK_b[j]* f.vs[j][:]
             #f.u[0].zero()
             f.linsolve(f.Mbc,f.u[0],f.DU[0])
-            f.u[0] += f.u0[0] 
+            f.u[0] += f.u0[0]
             f.update()
 
         # Solve the implicit equation here
@@ -142,9 +141,9 @@ class exRK(RKbase):
                 f.bcapp(K,F,time+h*RK_c[i],itcnt!=0)
                 self.DPRINT( "   Solving Matrix... ")
                 f.linsolve(K,f.DU[0],F)
-                
+
                 eps = error_metric(f.DU[0], f.u[0])
-                
+
                 self.DPRINT( "  ",itcnt," Norm:", eps)
                 if np.isnan(eps):
                     print("Hit a Nan! Quitting")
@@ -152,4 +151,3 @@ class exRK(RKbase):
                 f.u[0][:] = f.u[0][:] - f.DU[0][:]
                 f.update()
                 itcnt += 1
-        
