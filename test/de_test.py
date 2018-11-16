@@ -8,10 +8,19 @@ import afqsrungekutta as ark
 #
 schemes_to_check = [
     ('FWEuler',1),
+    ('RK2-trap',2),
+    ('RK2-mid',2),
+    ('RK3-1',3),
     ('RK4',4),
+
+    ('BWEuler',1),
+    ('LSDIRK2',2),
     ('LSDIRK3',3),
-    ('BWEuler',1)
-    ]
+
+    ('ImTrap',2),
+    ('DIRK2',3),
+    ('DIRK3',4),
+]
 
 def make_oscillator_script(scheme):
     def script(params, h):
@@ -28,7 +37,6 @@ def make_oscillator_script(scheme):
                     return np.array([-k*x[0]],np.double)
         odef = rkf_prob1(2,[v,x],M)
         NT = int(T_max / h)
-        print("Solving with ",scheme)
         RKER = ark.Integrator(h, scheme, [odef], verbose=False)
         xs,vs,ts = [],[],[]
         for t in xrange(NT):
@@ -55,7 +63,6 @@ def make_decay_script(scheme):
                     return np.array([-k*u[0]],np.double)
         odef = rkf_prob1(1,[u],np.array([1.0]))
         NT = int(T_max / h)
-        print("Solving with ",scheme)
         RKER = ark.Integrator(h, scheme, [odef], verbose=False)
         us,ts = [],[]
         for t in xrange(NT):
@@ -80,4 +87,4 @@ for scheme,order in schemes_to_check:
         extra_name=scheme)
     tests.append(ct_d)
 
-MyTestSuite = detest.make_suite(tests)
+MyTestSuite = detest.make_suite(tests,report=False)
