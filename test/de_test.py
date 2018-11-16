@@ -9,26 +9,31 @@ import afqsrungekutta as ark
 oscillator_tests = []
 for scheme,order in [('LSDIRK2',2),('BWEuler',1)]:
     def oscillator(params, h):
-        x = np.array([0.1],dtype=np.double)
-        u = np.array([0.0],dtype=np.double)
-        M_1 = np.array([1.0],dtype=np.double)
+        x = np.array([params['x0']],dtype=np.double)
+        v = np.array([params['v0']],dtype=np.double)
+        M = np.array([params['m']],dtype=np.double)
+        k = params['k']
         T_max = params['T_max']
         class rkf_prob1(ark.RK_field_numpy):
             def sys(self,time,tang=False):
                 if tang:
-                    return [np.array([-x[0]],np.double), np.array([[-1.0]],np.double),np.array([[0.0]],np.double)]
+                    return [np.array([-k*x[0]],np.double), np.array([[-k]],np.double),np.array([[0.0]],np.double)]
                 else:
                     return np.array([-x[0]],np.double)
-        odef = rkf_prob1(2,[u,x],M_1)
+        odef = rkf_prob1(2,[v,x],M)
         NT = int(T_max / h)
         RKER = ark.Integrator(h, scheme, [odef])
+        xs,vs,ts = [],[],[]
         for t in xrange(NT):
             RKER.march()
-        return {'x':np.array([x[0]]),
-                'v':np.array([u[0]]),
-                'points':np.array([[T_max]])}
+            xs.append(x[0])
+            vs.append(v[0])
+            ts.append(t*h)
+        return {'x':np.array(xs),
+                'v':np.array(vs),
+                'points':np.array([ts]).T}
     ct = detest.ConvergenceTest(detest.oracles.odes.Oscillator,
-        oscillator,order)
+        oscillator,order, h_path=np.linspace(0.1,0.01,10))
     oscillator_tests.append(ct)
 
 
