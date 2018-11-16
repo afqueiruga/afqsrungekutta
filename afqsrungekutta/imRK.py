@@ -3,8 +3,6 @@ import numpy as np
 
 from .RKbase import *
 
-from IPython import embed
-
 lin_method = "superlu"
 
 """
@@ -40,7 +38,7 @@ LDIRK = {
         'b':np.array( [ b1, b2, alpha ], dtype=np.double),
         'c': np.array( [ alpha, tau, 1.0 ], dtype=np.double)
     },
-    
+
     'ImTrap' : {
         'a':np.array([ [0.5]], dtype=np.double),
         'b':np.array([ 1.0 ], dtype=np.double),
@@ -74,7 +72,7 @@ class DIRK(RKbase):
         RK_a = self.RK_a
         RK_b = self.RK_b
         RK_c = self.RK_c
-        
+
         for f in self.ex_fields:
             f.save_u0()
             f.ks = []
@@ -89,7 +87,7 @@ class DIRK(RKbase):
             tnow = time + h*RK_c[i]
             self.DPRINT( " Stage ",i," at ",RK_c[i]," with aii=",RK_a[i,:] )
             aii = float(RK_a[i,i])
-            
+
             # One time set up
             for f in self.ex_fields:
                 f.Rhat[:] = f.M*f.u0[0][:]
@@ -103,7 +101,7 @@ class DIRK(RKbase):
             alldone = False
             itout = 0
             maxout = self.maxout if (len(self.im_fields)+len(self.ex_fields))>1 else 1
-            
+
             while not alldone and itout < maxout:
                 alldone = True
                 # Iterate over each of the fileds
@@ -212,4 +210,3 @@ class DIRK(RKbase):
                 f.u[0][:] = f.u[0][:] - f.DU[0][:]
                 f.update()
                 itcnt += 1
-        

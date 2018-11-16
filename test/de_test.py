@@ -6,33 +6,85 @@ import numpy as np
 import afqsrungekutta as ark
 
 #
-oscillator_tests = []
-for scheme,order in [('LSDIRK2',2),('BWEuler',1)]:
-    def oscillator(params, h):
-        x = np.array([0.1],dtype=np.double)
-        u = np.array([0.0],dtype=np.double)
-        class rkf_prob1(RK_field_numpy):
+schemes_to_check = [
+    ('FWEuler',1),
+    ('RK2-trap',2),
+    ('RK2-mid',2),
+    ('RK3-1',3),
+    ('RK4',4),
+
+    ('BWEuler',1),
+    ('LSDIRK2',2),
+    ('LSDIRK3',3),
+
+    ('ImTrap',2),
+    ('DIRK2',3),
+    ('DIRK3',4),
+]
+
+def make_oscillator_script(scheme):
+    def script(params, h):
+        x = np.array([params['x0']],dtype=np.double)
+        v = np.array([params['v0']],dtype=np.double)
+        M = np.array([params['m']],dtype=np.double)
+        k = params['k']
+        T_max = params['T_max']
+        class rkf_prob1(ark.RK_field_numpy):
             def sys(self,time,tang=False):
                 if tang:
-                    return [np.array([-x[0]],np.double), np.array([[-1.0]],np.double),np.array([[0.0]],np.double)]
+                    return [np.array([-k*x[0]],np.double), np.array([[-k]],np.double),np.array([[0.0]],np.double)]
                 else:
-                    return np.array([-x[0]],np.double)
-        odef = rkf_prob1(2,[u,x],M_1)
-        Tmax = 10.0
-        NT = T_max / h
-        RKER = ark.Integrator(h, scheme, [odef])
+                    return np.array([-k*x[0]],np.double)
+        odef = rkf_prob1(2,[v,x],M)
+        NT = int(T_max / h)
+        RKER = ark.Integrator(h, scheme, [odef], verbose=False)
+        xs,vs,ts = [],[],[]
         for t in xrange(NT):
             RKER.march()
-        return {'x':x[0],'v':u[0]}
-    ct = detest.ConvergenceTest(detest.oracles.odes.Oscillator,
-        oscillator,order)
-    oscillator_tests.append(ct)
+            xs.append(x[0])
+            vs.append(v[0])
+            ts.append((t+1)*h)
+        return {'x':np.array([xs]).T,
+                'v':np.array([vs]).T,
+                'points':np.array([ts]).T}
+    return script
 
 
-decayer_tests = []
+def make_decay_script(scheme):
+    def script(params, h):
+        u = np.array([params['u0']],dtype=np.double)
+        k = params['k']
+        T_max = params['T_max']
+        class rkf_prob1(ark.RK_field_numpy):
+            def sys(self,time,tang=False):
+                if tang:
+                    return [np.array([-k*u[0]],np.double), np.array([[-k]],np.double)]
+                else:
+                    return np.array([-k*u[0]],np.double)
+        odef = rkf_prob1(1,[u],np.array([1.0]))
+        NT = int(T_max / h)
+        RKER = ark.Integrator(h, scheme, [odef], verbose=False)
+        us,ts = [],[]
+        for t in xrange(NT):
+            RKER.march()
+            us.append(u[0])
+            ts.append((t+1)*h)
+        return {'u':np.array([us]).T,
+                'points':np.array([ts]).T}
+    return script
 
 
-MyTestSuite = detest.make_suite(
-    oscillator_tests + \
-    decayer_tests
-)
+tests = []
+for scheme,order in schemes_to_check:
+    oscillator = make_oscillator_script(scheme)
+    ct_o = detest.ConvergenceTest(detest.oracles.Oscillator,
+        oscillator,order, h_path=np.linspace(0.05,0.001,10),
+        extra_name=scheme)
+    tests.append(ct_o)
+    decay = make_decay_script(scheme)
+    ct_d = detest.ConvergenceTest(detest.oracles.Decay,
+        decay,order, h_path=np.linspace(0.05,0.001,10),
+        extra_name=scheme)
+    tests.append(ct_d)
+
+MyTestSuite = detest.make_suite(tests,report=False)
