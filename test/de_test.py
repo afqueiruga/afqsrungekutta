@@ -12,9 +12,9 @@ schemes_to_check = [
     ('LSDIRK3',3),
     ('BWEuler',1)
     ]
-oscillator_tests = []
-def make_script(scheme):
-    def oscillator(params, h):
+
+def make_oscillator_script(scheme):
+    def script(params, h):
         x = np.array([params['x0']],dtype=np.double)
         v = np.array([params['v0']],dtype=np.double)
         M = np.array([params['m']],dtype=np.double)
@@ -39,19 +39,45 @@ def make_script(scheme):
         return {'x':np.array([xs]).T,
                 'v':np.array([vs]).T,
                 'points':np.array([ts]).T}
-    return oscillator
+    return script
+
+
+def make_decay_script(scheme):
+    def script(params, h):
+        u = np.array([params['u0']],dtype=np.double)
+        k = params['k']
+        T_max = params['T_max']
+        class rkf_prob1(ark.RK_field_numpy):
+            def sys(self,time,tang=False):
+                if tang:
+                    return [np.array([-k*u[0]],np.double), np.array([[-k]],np.double)]
+                else:
+                    return np.array([-k*u[0]],np.double)
+        odef = rkf_prob1(1,[u],np.array([1.0]))
+        NT = int(T_max / h)
+        print("Solving with ",scheme)
+        RKER = ark.Integrator(h, scheme, [odef], verbose=False)
+        us,ts = [],[]
+        for t in xrange(NT):
+            RKER.march()
+            us.append(u[0])
+            ts.append((t+1)*h)
+        return {'u':np.array([us]).T,
+                'points':np.array([ts]).T}
+    return script
+
+
+tests = []
 for scheme,order in schemes_to_check:
-    oscillator = make_script(scheme)
-    ct = detest.ConvergenceTest(detest.oracles.odes.Oscillator,
+    oscillator = make_oscillator_script(scheme)
+    ct_o = detest.ConvergenceTest(detest.oracles.Oscillator,
         oscillator,order, h_path=np.linspace(0.05,0.001,10),
         extra_name=scheme)
-    oscillator_tests.append(ct)
+    tests.append(ct_o)
+    decay = make_decay_script(scheme)
+    ct_d = detest.ConvergenceTest(detest.oracles.Decay,
+        decay,order, h_path=np.linspace(0.05,0.001,10),
+        extra_name=scheme)
+    tests.append(ct_d)
 
-
-decayer_tests = []
-
-
-MyTestSuite = detest.make_suite(
-    oscillator_tests + \
-    decayer_tests
-)
+MyTestSuite = detest.make_suite(tests)
