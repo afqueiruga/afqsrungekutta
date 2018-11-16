@@ -98,7 +98,7 @@ class RKbase():
     """
     Base class for a Runge-Kutta integrator
     """
-    def __init__(self,h, tableau, fields, tol=1.0e-12, w=1.0):
+    def __init__(self,h, tableau, fields, tol=1.0e-12, w=1.0, verbose=False):
         self.h = h
 
         self.RK_a = tableau['a']
@@ -107,6 +107,7 @@ class RKbase():
 
         self.tol=tol
         self.w = w
+        self.verbose = verbose
 
         self.im_fields = []
         self.ex_fields = []
@@ -126,12 +127,9 @@ class RKbase():
                     self.LSTABLE = False
                     break
 
-    def DPRINT(*args):
-        #return
-        #for a in args[1:]:
-        #    print(a,)
-        #print("")
-        print(*args[1:])
+    def DPRINT(self,*args):
+        if self.verbose:
+            print(*args)
 
     # Implement me!
     def march(self,time=0.0):
