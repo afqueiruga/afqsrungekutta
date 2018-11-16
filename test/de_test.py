@@ -6,8 +6,13 @@ import numpy as np
 import afqsrungekutta as ark
 
 #
+schemes_to_check = [
+    ('RK4',4),
+    ('LSDIRK3',3),
+    ('BWEuler',1)
+    ]
 oscillator_tests = []
-for scheme,order in [('LSDIRK2',2),('BWEuler',1)]:
+def make_script(scheme):
     def oscillator(params, h):
         x = np.array([params['x0']],dtype=np.double)
         v = np.array([params['v0']],dtype=np.double)
@@ -22,7 +27,8 @@ for scheme,order in [('LSDIRK2',2),('BWEuler',1)]:
                     return np.array([-x[0]],np.double)
         odef = rkf_prob1(2,[v,x],M)
         NT = int(T_max / h)
-        RKER = ark.Integrator(h, scheme, [odef])
+        print("Solving with ",scheme)
+        RKER = ark.Integrator(h, scheme, [odef], verbose=False)
         xs,vs,ts = [],[],[]
         for t in xrange(NT):
             RKER.march()
@@ -32,8 +38,12 @@ for scheme,order in [('LSDIRK2',2),('BWEuler',1)]:
         return {'x':np.array([xs]).T,
                 'v':np.array([vs]).T,
                 'points':np.array([ts]).T}
+    return oscillator
+for scheme,order in schemes_to_check:
+    oscillator = make_script(scheme)
     ct = detest.ConvergenceTest(detest.oracles.odes.Oscillator,
-        oscillator,order, h_path=np.linspace(0.05,0.001,10))
+        oscillator,order, h_path=np.linspace(0.05,0.001,10),
+        extra_name=scheme)
     oscillator_tests.append(ct)
 
 
