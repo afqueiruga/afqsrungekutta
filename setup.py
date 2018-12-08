@@ -13,6 +13,6 @@ setup(
     keywords = "",
     packages = find_packages(exclude=['test']),
     test_suite='test',
-    long_description=read('Readme.md'),
+    long_description=read('README.md'),
     classifiers=[],
 )
