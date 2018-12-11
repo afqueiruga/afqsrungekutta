@@ -65,7 +65,7 @@ class DIRK(RKbase):
     """
     Diagonally Implicit Runge-Kuttas
     When doing an LDIRK, it can handle lots of DAEs.
-    When doing one with asj != bj, it can only gauruntee do Semi-Explicit.
+    When doing one with asj != bj, it can only gauruntee to do Semi-Explicit.
     """
     def march(self,time=0.0):
         h = self.h

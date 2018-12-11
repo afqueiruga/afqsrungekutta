@@ -5,7 +5,6 @@ import numpy as np
 
 import afqsrungekutta as ark
 
-#
 schemes_to_check = [
     ('FWEuler',1),
     ('RK2-trap',2),
