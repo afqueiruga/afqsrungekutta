@@ -11,15 +11,15 @@ schemes_to_check = [
     ('LSDIRK2',2),
     ('LSDIRK3',3),
 
-    ('ImTrap',2),
-    ('DIRK2',3),
-    ('DIRK3',4),
+    # ('ImTrap',2),
+    # ('DIRK2',3),
+    # ('DIRK3',4),
 ]
 
 def heat_equation_script(params,h, hyper={'rk':'LSDIRK2'}):
     from fenics import *
     mesh = UnitIntervalMesh( int(20.0/h) )
-    U = FunctionSpace(mesh,'CG',1)
+    U = FunctionSpace(mesh,'CG',4)
     u,tu,Du = Function(U),TestFunction(U),TrialFunction(U)
     Gamma = CompiledSubDomain("on_boundary")
     bcs = [ DirichletBC(U,Constant(0.0),Gamma) ]
@@ -27,7 +27,7 @@ def heat_equation_script(params,h, hyper={'rk':'LSDIRK2'}):
     x = SpatialCoordinate(mesh)
     params['u0'](x[0])
     u.interpolate( Expression("4.0*x[0]*(1.0-x[0])",degree=2) )
-    
+    print(hyper['rk'])
     k = params['k']
     f_M = tu*Du*dx
     f_R = (-tu.dx(0) * k * u.dx(0) ) * dx
@@ -49,15 +49,15 @@ def heat_equation_script(params,h, hyper={'rk':'LSDIRK2'}):
         'points':pts,
     }
     
+def close(scheme,order):
+    return detest.ConvergenceTest(detest.oracles.HeatEquation1D,
+                lambda p,h : heat_equation_script(p,h, {'rk':scheme}),
+                order, h_path=np.linspace(1.0,0.5,5),
+                extra_name = scheme,
+                report_cfg={'idx':0})
 tests = []
 for scheme,order in schemes_to_check:
-    tests.append(
-        detest.ConvergenceTest(detest.oracles.HeatEquation1D,
-            lambda p,h : heat_equation_script(p,h, {'rk':scheme}),
-            order, h_path=np.linspace(1.0,0.5,5),
-            extra_name = scheme,
-            report_cfg={'idx':0}
-    ))
+    tests.append( close(scheme,order))
     
 MyTestSuite = detest.make_suite(tests,report=True)
 
