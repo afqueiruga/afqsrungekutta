@@ -62,7 +62,7 @@ class exRK(RKbase):
             if f.order == 2:
                 f.vs = []
 
-        for i in xrange(len(RK_c)):
+        for i in range(len(RK_c)):
             tnow = time + h* RK_c[i]
             self.DPRINT( " Stage ",i," at ",RK_c[i]," with ai_=",RK_a[i,:] )
             # Step 1: Calculate values of explicit fields at this step
@@ -70,7 +70,7 @@ class exRK(RKbase):
                 for s,v in zip(f.u,f.u0):
                     s[:] = v[:]
                 f.DU[0][:] = 0.0 #.zero()
-                for j in xrange(i):
+                for j in range(i):
                     f.DU[0][:] += h*RK_a[i,j]* f.ks[j][:] # Need to solve matrix
                     if f.order == 2:
                         f.u[1][:] += h*RK_a[i,j]* f.vs[j][:]
@@ -118,7 +118,7 @@ class exRK(RKbase):
             for s,v in zip(f.u,f.u0):
                 s[:] = v[:]
             f.DU[0][:] = 0.0 #.zero()
-            for j in xrange(len(RK_b)):
+            for j in range(len(RK_b)):
                 f.DU[0][:] += h*RK_b[j]*f.ks[j][:] # Need to solve matrix
                 if f.order == 2:
                     f.u[1][:] += h*RK_b[j]* f.vs[j][:]

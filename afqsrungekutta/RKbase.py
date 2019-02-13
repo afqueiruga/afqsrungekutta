@@ -122,7 +122,7 @@ class RKbase():
         if self.RK_c[-1]==1.0:
             self.LSTABLE = True
             s = len(self.RK_b)
-            for j in xrange(s):
+            for j in range(s):
                 if self.RK_b[j] != self.RK_a[s-1,j]:
                     self.LSTABLE = False
                     break

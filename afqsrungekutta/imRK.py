@@ -83,7 +83,7 @@ class DIRK(RKbase):
                 #f.M = np.array([[1.0]],dtype=np.double)
                 #f.Mbc = np.array([[1.0]],dtype=np.double)
                 #f.M = scipy.sparse.
-        for i in xrange(len(RK_c)):
+        for i in range(len(RK_c)):
             tnow = time + h*RK_c[i]
             self.DPRINT( " Stage ",i," at ",RK_c[i]," with aii=",RK_a[i,:] )
             aii = float(RK_a[i,i])
@@ -93,7 +93,7 @@ class DIRK(RKbase):
                 f.Rhat[:] = f.M*f.u0[0][:]
                 if f.order == 2:
                     f.uhat[1][:] = f.u0[1][:]
-                for j in xrange(i):
+                for j in range(i):
                     f.Rhat[:] += h*RK_a[i,j]*f.ks[j][:]
                     if f.order == 2:
                         f.uhat[1][:] += h*RK_a[i,j]*f.vs[j][:]
@@ -175,7 +175,7 @@ class DIRK(RKbase):
             for s,v in zip(f.u,f.u0):
                 s[:] = v[:]
             f.DU[0][:]=0.0
-            for j in xrange(len(RK_b)):
+            for j in range(len(RK_b)):
                 f.DU[0][:] += h*RK_b[j]*f.ks[j][:] # Need to solve matrix
                 if f.order == 2:
                     f.u[1][:] += h*RK_b[j]*f.vs[j][:]
